@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: pharmacy-way
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}  # ✅ 실행 시 환경변수가 없으면 'local' 사용
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  # ✅ 로컬 환경용 설정 추가 가능 (원하는 거 넣어라)
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  # ✅ 운영 환경용 설정 추가 가능 (원하는 거 넣어라)
