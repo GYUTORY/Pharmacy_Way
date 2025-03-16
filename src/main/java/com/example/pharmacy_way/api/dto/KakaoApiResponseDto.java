@@ -5,19 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class KakaoApiResponseDto {
 
-    @JsonProperty("address_name")
-    private String addressName;
+    private MetaDto metaDto;
 
-    @JsonProperty("y")
-    private double latitude;
-
-    @JsonProperty("x")
-    private double longitude;
+    private List<DocumentDto> documentList;
 
 
 }
