@@ -1,9 +1,11 @@
 package com.example.pharmacy_way.api.service
 
+import org.springframework.boot.test.context.SpringBootTest
 import spock.lang.Specification
 
 import java.nio.charset.StandardCharsets
 
+@SpringBootTest
 class KakaoUriBuilderServiceTest extends Specification {
 
     private KakaoUriBuilderService kakaoUriBuilderService;
