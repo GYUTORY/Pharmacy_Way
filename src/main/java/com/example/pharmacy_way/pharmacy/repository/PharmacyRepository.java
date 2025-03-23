@@ -2,6 +2,7 @@ package com.example.pharmacy_way.pharmacy.repository;
 
 import com.example.pharmacy_way.pharmacy.entity.Pharmacy;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * Pharmacy 엔티티와 데이터베이스 간의 상호작용을 담당하는 JPA Repository 인터페이스

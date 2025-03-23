@@ -1,51 +1,61 @@
 spring:
   application:
-    name: pharmacy-way  # 애플리케이션 이름 설정
+    name: pharmacy-way  # 이 애플리케이션의 이름 (로그, 모니터링 툴 등에 표시됨)
 
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:local}  # ✅ 환경변수가 없으면 'local' 프로필 사용
+    active: ${SPRING_PROFILES_ACTIVE:local}  # 활성화할 profile 설정
+    # - SPRING_PROFILES_ACTIVE 환경변수가 존재하면 해당 값을 사용 (ex: prod, local)
+    # - 없으면 기본값 'local' 사용
+    # - profile은 환경별 설정(local, dev, prod)을 분리해 관리할 수 있는 기능
 
 ---
-# ✅ 공통 설정 (common profile)
+# ✅ 공통 설정: 모든 환경에서 적용하고 싶은 설정은 'common' 프로필에 정의
 spring:
   config:
     activate:
-      on-profile: common  # 모든 환경에서 공통적으로 적용되는 설정
+      on-profile: common  # 'common'이라는 profile이 활성화되었을 때만 적용됨
 
 kakao:
   rest:
     api:
-      key: ${KAKAO_REST_API_KEY}  # ✅ 환경변수에서 Kakao API 키 로드 (필수 설정)
+      key: ${KAKAO_REST_API_KEY}  # Kakao REST API 호출 시 사용할 인증 키
+      # - 외부 API 키는 민감한 정보이므로 환경변수로 관리하는 것이 보안상 안전
 
 ---
-# ✅ 로컬 환경 설정 (local profile)
+# ✅ 로컬 개발 환경 설정 (로컬에서 실행할 때 적용됨)
 spring:
   config:
     activate:
       on-profile: local  # 'local' 프로필이 활성화되었을 때만 적용
 
   datasource:
-    driver-class-name: org.mariadb.jdbc.Driver  # MariaDB 드라이버
-    url: jdbc:mariadb://localhost:3306/pharmacy-recommendation  # 로컬 DB 연결
-    username: ${SPRING_DATASOURCE_USERNAME}  # 환경변수에서 로드
-    password: ${SPRING_DATASOURCE_PASSWORD}  # 환경변수에서 로드
+    driver-class-name: org.mariadb.jdbc.Driver  # MariaDB에 연결하기 위한 드라이버 클래스
+    url: jdbc:mariadb://localhost:3306/pharmacy-recommendation  # 로컬 DB 주소 및 DB명
+    username: ${SPRING_DATASOURCE_USERNAME}  # DB 로그인 ID (환경변수로 분리)
+    password: ${SPRING_DATASOURCE_PASSWORD}  # DB 비밀번호 (환경변수로 분리)
 
   jpa:
     hibernate:
-      ddl-auto: update  # ✅ 개발 환경에서는 update, 운영 환경에서는 validate 또는 none 추천
-    show-sql: true  # SQL 쿼리 로깅 (운영 환경에서는 OFF 권장)
+      ddl-auto: update
+      # ddl-auto 옵션은 JPA가 DB 스키마를 어떻게 처리할지를 정의함
+      # - update: 엔티티에 맞게 스키마 자동 수정 (개발 편리함, 운영 위험)
+      # - create: 기존 테이블 삭제 후 재생성 (테스트용)
+      # - validate: 스키마가 일치하는지 확인만 함 (운영용)
+      # - none: 아무 것도 하지 않음 (운영용)
+
+    show-sql: true  # 실행되는 SQL을 콘솔에 출력 (디버깅에 유용)
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MariaDBDialect  # ✅ MariaDB용 Hibernate dialect
-        format_sql: true  # SQL 쿼리를 보기 쉽게 포맷팅
+        dialect: org.hibernate.dialect.MariaDBDialect  # MariaDB용 Hibernate SQL 문법 설정
+        format_sql: true  # SQL 쿼리를 보기 좋게 포맷해서 로그에 출력
 
   data:
     redis:
-      host: localhost  # Redis 서버 주소
-      port: 6379       # Redis 포트 번호
+      host: localhost  # Redis 서버 주소 (로컬에서 실행 중인 Redis)
+      port: 6379       # Redis 기본 포트
 
 ---
-# ✅ 운영 환경 설정 (prod profile)
+# ✅ 운영 환경(prod) 설정 (배포용 설정)
 spring:
   config:
     activate:
@@ -54,20 +64,22 @@ spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mariadb://${SPRING_DATASOURCE_HOST:prod-db-host}:3306/pharmacy-recommendation
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    # - 운영 환경에서는 DB 주소를 환경변수로 분리해서 관리
+    # - SPRING_DATASOURCE_HOST가 없을 경우 기본값 prod-db-host 사용
+    username: ${SPRING_DATASOURCE_USERNAME}  # 운영 DB 사용자명
+    password: ${SPRING_DATASOURCE_PASSWORD}  # 운영 DB 비밀번호
 
   jpa:
     hibernate:
-      ddl-auto: validate  # ✅ 운영 환경에서는 validate 또는 none 사용 (데이터 손실 방지)
+      ddl-auto: validate  # 운영 환경에서는 validate 사용해서 스키마 검증만 수행
+      # - 자동 수정은 위험하므로 update, create는 사용하지 않음
+
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
-        format_sql: false  # ✅ 운영 환경에서는 SQL 포맷팅 비활성화 추천
+        format_sql: false  # SQL 포맷팅 비활성화 (로그 용량 줄이기 위해)
 
   data:
     redis:
-      host: ${REDIS_HOST:prod-redis-host}
-      port: 6379  # 운영 환경에 맞게 수정 가능
-
-  # ✅ 추가적인 운영 환경 설정 가능 (예: 로깅, 캐시 설정 등)
+      host: ${REDIS_HOST:prod-redis-host}  # 운영 Redis 주소 (환경변수 사용, 기본값 prod-redis-host)
+      port: 6379

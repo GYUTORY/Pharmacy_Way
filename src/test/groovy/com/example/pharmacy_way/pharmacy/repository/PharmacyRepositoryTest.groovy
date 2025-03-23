@@ -1,6 +1,13 @@
-package com.example.pharmacy_way.pharmacy.repository;
+package com.example.pharmacy_way.pharmacy.repository
 
+import com.example.pharmacy_way.pharmacy.entity.Pharmacy;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.example.pharmacy_way.AbstractIntegrationContainerBaseTest
+import com.example.pharmacy_way.pharmacy.entity.Pharmacy;
+import org.springframework.beans.factory.annotation.Autowired
+
+
 import org.springframework.boot.test.context.SpringBootTest;
 import spock.lang.Specification;
 
@@ -11,18 +18,35 @@ import spock.lang.Specification;
  * - @SpringBootTest를 사용하여 Spring 컨텍스트에서 테스트 수행
  */
 
-@SpringBootTest // Spring Boot의 애플리케이션 컨텍스트를 로드하여 테스트 실행
-class PharmacyRepositoryTest extends Specification { // Spock의 테스트 클래스는 Specification을 상속받아야 함
+
+class PharmacyRepositoryTest extends AbstractIntegrationContainerBaseTest { // Spock의 테스트 클래스는 Specification을 상속받아야 함
 
     @Autowired // Spring 컨테이너에서 PharmacyRepository 빈을 자동 주입
     private PharmacyRepository pharmacyRepository;
 
-    /**
-     * 테스트 메서드 (현재는 빈 상태)
-     *
-     * - "def" 키워드는 Spock에서 테스트 메서드를 정의할 때 사용
-     */
-    def "test"() {
+    def "PharmacyRepository save"() {
 
+        given:
+        String address = "서울 특별시 성북구 종암동"
+        String name = "은혜 약국"
+        double latitude = 36.11
+        double longitude = 128.11
+
+        def pharmacy = Pharmacy.builder()
+                .pharmacyAddress(address)
+                .pharmacyName(name)
+                .latitude(latitude)
+                .longitude(longitude)
+                .build()
+
+        when:
+        def result = pharmacyRepository.save(pharmacy)
+
+        then:
+        result.getPharmacyAddress() == address;
+        result.getPharmacyName() == name;
+        result.getLatitude() == latitude;
+        result.getLongitude() == longitude;
     }
+
 }
